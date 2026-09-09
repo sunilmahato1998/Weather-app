@@ -1,11 +1,14 @@
 from pathlib import Path
+import os
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env')
 
-SECRET_KEY = 'django-insecure-h4irj0@_1tgc4h^@r^6zblz$zfj+4o575$2rcrhu3*67c0_f01'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-h4irj0@_1tgc4h^@r^6zblz$zfj+4o575$2rcrhu3*67c0_f01')
 
-DEBUG = True
-ALLOWED_HOSTS = []
+DEBUG = os.getenv('DJANGO_DEBUG', 'True').lower() in {'1', 'true', 'yes'}
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -67,7 +70,7 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [BASE_DIR / "static"]
+STATICFILES_DIRS = [BASE_DIR / "weatherapp" / "static"]
 
 # OpenWeatherMap API Key
-OPENWEATHER_API_KEY = '3f978ddd1b3f9501f27a258b376be7e9'
+OPENWEATHER_API_KEY = os.getenv('OPENWEATHER_API_KEY', '')
