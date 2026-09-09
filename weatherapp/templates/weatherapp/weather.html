@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather ForeCasts</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'weatherapp/style.css' %}">
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div class="splash-screen" id="splashScreen">
+        <div class="weather-animation">
+            <div class="sun"></div>
+            <div class="cloud">
+                <div class="raindrops">
+                    <div class="raindrop"></div>
+                    <div class="raindrop"></div>
+                    <div class="raindrop"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="title-section">
+            <h1 class="main-title">Weather</h1>
+            <h2 class="sub-title">ForeCasts</h2>
+        </div>
+        
+        <button class="get-start-btn" onclick="showMainScreen()">Get Start</button>
+    </div>
+
+    <!-- Main Weather Screen -->
+    <div class="main-screen" id="mainScreen">
+        <div class="container">
+            <!-- Search Section -->
+            <div class="search-section">
+                <form method="POST" class="search-form">
+                    {% csrf_token %}
+                    <input type="text" name="city" class="city-input" placeholder="Enter city name..." required>
+                    <button type="submit" class="search-btn">
+                        <span>🔍</span> Search
+                    </button>
+                </form>
+            </div>
+
+            {% if error %}
+                <div class="error-message">
+                    <span>⚠️</span> {{ error }}
+                </div>
+            {% endif %}
+
+            {% if weather %}
+                <!-- Location Header -->
+                <div class="location-header">
+                    <h2 class="location-name">{{ weather.city }}, {{ weather.country }}</h2>
+                    <p class="temp-range">Max: {{ weather.temp_max }}° Min: {{ weather.temp_min }}°</p>
+                </div>
+
+                <!-- Current Weather Card -->
+                <div class="current-weather-card">
+                    <div class="weather-icon-large">
+                        <img src="http://openweathermap.org/img/wn/{{ weather.icon }}@4x.png" alt="{{ weather.description }}">
+                    </div>
+                    <div class="current-temp">{{ weather.temperature }}°</div>
+                    <div class="weather-desc">{{ weather.description }}</div>
+                    
+                    <div class="date-row">
+                        <span>Today</span>
+                        <span>{{ weather.sunrise }}</span>
+                    </div>
+                </div>
+
+                {% if forecast and forecast.hourly %}
+                <!-- Hourly Forecast -->
+                <div class="forecast-section">
+                    <h3 class="section-title">Today's Forecast</h3>
+                    <div class="hourly-scroll">
+                        {% for hour in forecast.hourly %}
+                        <div class="hourly-card">
+                            <div class="hourly-temp">{{ hour.temp }}°C</div>
+                            <img src="http://openweathermap.org/img/wn/{{ hour.icon }}@2x.png" alt="{{ hour.description }}" class="hourly-icon">
+                            <div class="hourly-time">{{ hour.time }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if forecast and forecast.daily %}
+                <!-- 7-Day Forecast -->
+                <div class="forecast-section">
+                    <h3 class="section-title">7-Days Forecasts</h3>
+                    <div class="daily-scroll">
+                        {% for day in forecast.daily %}
+                        <div class="daily-card">
+                            <div class="daily-temp">{{ day.temp }}°C</div>
+                            <img src="http://openweathermap.org/img/wn/{{ day.icon }}@2x.png" alt="{{ day.description }}" class="daily-icon">
+                            <div class="daily-day">{{ day.day }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Weather Details Grid -->
+                <div class="details-grid">
+                    <div class="detail-card">
+                        <div class="detail-icon">💧</div>
+                        <div class="detail-label">Humidity</div>
+                        <div class="detail-value">{{ weather.humidity }}%</div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <div class="detail-icon">💨</div>
+                        <div class="detail-label">Wind Speed</div>
+                        <div class="detail-value">{{ weather.wind_speed }} m/s</div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <div class="detail-icon">🌡️</div>
+                        <div class="detail-label">Feels Like</div>
+                        <div class="detail-value">{{ weather.feels_like }}°C</div>
+                    </div>
+                    
+                    <div class="detail-card">
+                        <div class="detail-icon">📊</div>
+                        <div class="detail-label">Pressure</div>
+                        <div class="detail-value">{{ weather.pressure }} hPa</div>
+                    </div>
+                </div>
+
+                <!-- Sunrise/Sunset Cards -->
+                <div class="sun-info-grid">
+                    <div class="sun-card sunrise">
+                        <div class="sun-icon">🌅</div>
+                        <div class="sun-label">SUNRISE</div>
+                        <div class="sun-time">{{ weather.sunrise }}</div>
+                    </div>
+                    
+                    <div class="sun-card sunset">
+                        <div class="sun-icon">🌇</div>
+                        <div class="sun-label">SUNSET</div>
+                        <div class="sun-time">{{ weather.sunset }}</div>
+                    </div>
+                </div>
+
+                <!-- Air Quality Card -->
+                <div class="air-quality-card">
+                    <div class="aq-header">
+                        <span class="aq-icon">🎯</span>
+                        <span class="aq-label">AIR QUALITY</span>
+                    </div>
+                    <div class="aq-value">Good</div>
+                    <div class="aq-subtext">Air quality is satisfactory</div>
+                </div>
+
+            {% else %}
+                <!-- Default State -->
+                <div class="default-state">
+                    <div class="default-icon">🌤️</div>
+                    <h3>Search for a city</h3>
+                    <p>Enter a city name above to get weather forecast</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        function showMainScreen() {
+            document.getElementById('splashScreen').style.display = 'none';
+            document.getElementById('mainScreen').style.display = 'block';
+        }
+
+        // Auto show main screen after 3 seconds
+        setTimeout(function() {
+            showMainScreen();
+        }, 3000);
+    </script>
+</body>
+</html>
