@@ -15,33 +15,28 @@ def home(request):
     error_message = None
 
     if request.method == "POST":
-        city = sanitize_city(request.POST.get("city", ""))
+        city = request.POST.get("city", "")
         latitude = request.POST.get("lat")
         longitude = request.POST.get("lon")
 
-        if latitude and longitude:
-            try:
+        try:
+            city = sanitize_city(city)
+
+            if latitude and longitude:
                 weather_data, forecast_data = fetch_weather_for_coordinates(latitude, longitude)
                 air_quality = fetch_air_quality(latitude, longitude)
-            except ValueError as exc:
-                error_message = str(exc)
-            except RuntimeError as exc:
-                error_message = str(exc)
-            except Exception:
-                error_message = "Something went wrong while loading weather data. Please try again."
-        elif city:
-            try:
+            elif city:
                 weather_data, forecast_data = fetch_weather_for_city(city)
                 if weather_data.get("latitude") is not None and weather_data.get("longitude") is not None:
                     air_quality = fetch_air_quality(weather_data["latitude"], weather_data["longitude"])
-            except ValueError as exc:
-                error_message = str(exc)
-            except RuntimeError as exc:
-                error_message = str(exc)
-            except Exception:
-                error_message = "Something went wrong while loading weather data. Please try again."
-        else:
-            error_message = "Please enter a city name."
+            else:
+                error_message = "Please enter a city name."
+        except ValueError as exc:
+            error_message = str(exc)
+        except RuntimeError as exc:
+            error_message = str(exc)
+        except Exception:
+            error_message = "Something went wrong while loading weather data. Please try again."
 
     context = {
         "weather": weather_data,

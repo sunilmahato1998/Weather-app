@@ -13,6 +13,10 @@ class WeatherServicesTests(TestCase):
     def test_sanitize_city_removes_extra_spaces(self):
         self.assertEqual(sanitize_city("   delhi   city   "), "delhi city")
 
+    def test_sanitize_city_rejects_numeric_input(self):
+        with self.assertRaises(ValueError):
+            sanitize_city("1234")
+
     def test_build_hourly_forecasts_limits_to_eight_items(self):
         items = [
             {"dt": 1710000000, "main": {"temp": 28.5}, "weather": [{"icon": "01d", "description": "clear sky"}]},

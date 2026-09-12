@@ -20,7 +20,15 @@ AQI_LEVELS = {
 
 
 def sanitize_city(city: str) -> str:
-    return " ".join((city or "").strip().split())
+    clean_city = " ".join((city or "").strip().split())
+
+    if not clean_city:
+        raise ValueError("Please enter a city name.")
+
+    if clean_city.isdigit():
+        raise ValueError("Please enter a valid city name.")
+
+    return clean_city
 
 
 def _get_api_key() -> str:

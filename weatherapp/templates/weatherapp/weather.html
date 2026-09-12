@@ -11,6 +11,9 @@
     <div class="page-shell">
         <div class="ambient ambient-one"></div>
         <div class="ambient ambient-two"></div>
+        <div class="cloud-layer cloud-layer-one"></div>
+        <div class="cloud-layer cloud-layer-two"></div>
+        <div class="cloud-layer cloud-layer-three"></div>
 
         <div class="main-screen" id="mainScreen">
             <div class="container">
@@ -208,8 +211,8 @@
                 {% else %}
                     <section class="default-state">
                         <div class="default-icon">🌤️</div>
-                        <h3>Search for a city</h3>
-                        <p>Get real-time weather insights and a 7-day forecast.</p>
+                        <h3>Weather intelligence at a glance</h3>
+                        <p>Track live conditions, 7-day forecasts, and air quality in one clean dashboard.</p>
                     </section>
                 {% endif %}
             </div>
@@ -217,6 +220,17 @@
     </div>
 
     <script>
+        const weatherForm = document.getElementById('weatherForm');
+        let usingLocation = false;
+
+        // Jab user city type karke Search dabaye, purani lat/lon hidden fields hata do
+        weatherForm.addEventListener('submit', function () {
+            if (!usingLocation) {
+                document.querySelector('input[name="lat"]')?.remove();
+                document.querySelector('input[name="lon"]')?.remove();
+            }
+        });
+
         document.getElementById('useLocationBtn')?.addEventListener('click', function () {
             if (!navigator.geolocation) {
                 alert('Geolocation is not supported by this browser.');
@@ -225,6 +239,11 @@
 
             navigator.geolocation.getCurrentPosition(function (position) {
                 const form = document.getElementById('weatherForm');
+
+                // Duplicate hidden fields na banein, isliye purani hata do
+                document.querySelector('input[name="lat"]')?.remove();
+                document.querySelector('input[name="lon"]')?.remove();
+
                 const latInput = document.createElement('input');
                 const lonInput = document.createElement('input');
 
@@ -238,6 +257,8 @@
 
                 form.appendChild(latInput);
                 form.appendChild(lonInput);
+
+                usingLocation = true;
                 form.submit();
             }, function () {
                 alert('Unable to access your location. Please search for a city manually.');
