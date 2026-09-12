@@ -20,17 +20,18 @@ def home(request):
         longitude = request.POST.get("lon")
 
         try:
-            city = sanitize_city(city)
-
             if latitude and longitude:
                 weather_data, forecast_data = fetch_weather_for_coordinates(latitude, longitude)
                 air_quality = fetch_air_quality(latitude, longitude)
-            elif city:
-                weather_data, forecast_data = fetch_weather_for_city(city)
-                if weather_data.get("latitude") is not None and weather_data.get("longitude") is not None:
-                    air_quality = fetch_air_quality(weather_data["latitude"], weather_data["longitude"])
             else:
-                error_message = "Please enter a city name."
+                city = sanitize_city(city)
+
+                if city:
+                    weather_data, forecast_data = fetch_weather_for_city(city)
+                    if weather_data.get("latitude") is not None and weather_data.get("longitude") is not None:
+                        air_quality = fetch_air_quality(weather_data["latitude"], weather_data["longitude"])
+                else:
+                    error_message = "Please enter a city name."
         except ValueError as exc:
             error_message = str(exc)
         except RuntimeError as exc:
